@@ -20,6 +20,15 @@ UNSAFE_FILENAME_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 MAX_DOWNLOAD_SIZE = 100 * 1024 * 1024  # 100 MB
 REQUEST_TIMEOUT = 30  # seconds
 
+REPODOC_BANNER = (
+    "[bold bright_green]██████╗ ███████╗██████╗  ██████╗ ██████╗  ██████╗  ██████╗ [/]\n"
+    "[bold green1]██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔═══██╗██╔════╝[/]\n"
+    "[bold chartreuse1]██████╔╝█████╗  ██████╔╝██║   ██║██║  ██║██║   ██║██║     [/]\n"
+    "[bold green3]██╔══██╗██╔══╝  ██╔═══╝ ██║   ██║██║  ██║██║   ██║██║     [/]\n"
+    "[bold green]██║  ██║███████╗██║     ╚██████╔╝██████╔╝╚██████╔╝╚██████╗[/]\n"
+    "[dark_green]╚═╝  ╚═╝╚══════╝╚═╝      ╚═════╝ ╚═════╝  ╚═════╝  ╚═════╝[/]"
+)
+
 # Path to the md2pdf executable
 MD2PDF_PATH = Path.home() / "md2pdf" / "md2pdf"
 
@@ -180,11 +189,18 @@ def run_md2pdf(directory: Path):
 
 def main():
     """Main application entry point."""
+    console.print()
+    console.print("[dim]  Workflow Tools developed by Juan Bobadilla & Claude Code[/dim]")
+    console.print()
+    console.print(REPODOC_BANNER)
+    console.print()
+    console.print("[dark_green]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/]")
     console.print(Panel(
-        "[bold]repodoc[/bold]\n\n"
+        "[bold bright_green]Repository Documentation Downloader[/bold bright_green]\n\n"
         "Downloads all .md files from a GitHub repository and organizes them.",
-        title="repodoc",
-        border_style="blue"
+        title="[bold green]repodoc[/bold green]",
+        border_style="green",
+        padding=(1, 2),
     ))
 
     url = get_repo_url()
