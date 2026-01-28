@@ -18,7 +18,7 @@ WRAPPER
 chmod +x "$SCRIPT_DIR/repodoc"
 
 echo ""
-echo "Created wrapper script: ~/md2pdf/repodoc/repodoc"
+echo "Created wrapper script: ~/repodoc/repodoc"
 echo ""
 echo "Done! You can run the tool with:"
-echo "  ~/md2pdf/repodoc/repodoc"
+echo "  ~/repodoc/repodoc"

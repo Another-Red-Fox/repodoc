@@ -17,6 +17,9 @@ from rich.prompt import Confirm, Prompt
 
 UNSAFE_FILENAME_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 
+MAX_DOWNLOAD_SIZE = 100 * 1024 * 1024  # 100 MB
+REQUEST_TIMEOUT = 30  # seconds
+
 # Path to the md2pdf executable
 MD2PDF_PATH = Path.home() / "md2pdf" / "md2pdf"
 
@@ -32,7 +35,10 @@ console = Console()
 
 def sanitize_filename(name: str) -> str:
     """Remove unsafe characters from a filename."""
-    return UNSAFE_FILENAME_CHARS.sub("", name).strip(". ")
+    clean = UNSAFE_FILENAME_CHARS.sub("", name).strip(". ")
+    if not clean:
+        clean = "output"
+    return clean[:200]
 
 def get_repo_url() -> str:
     """Prompt user for a GitHub repository URL."""
@@ -61,13 +67,13 @@ def download_and_extract(owner: str, repo: str, dest: Path) -> list[Path]:
 
     with console.status("Downloading repository...") as status:
         try:
-            response = requests.get(zip_url)
+            response = requests.get(zip_url, timeout=REQUEST_TIMEOUT)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404:
                 status.update("Main branch not found, trying master...")
                 try:
-                    response = requests.get(alt_zip_url)
+                    response = requests.get(alt_zip_url, timeout=REQUEST_TIMEOUT)
                     response.raise_for_status()
                 except requests.exceptions.RequestException as e_alt:
                     console.print(f"[red]Error:[/red] Failed to download from both main and master branches: {e_alt}")
@@ -77,6 +83,10 @@ def download_and_extract(owner: str, repo: str, dest: Path) -> list[Path]:
                 return []
         except requests.exceptions.RequestException as e:
             console.print(f"[red]Error:[/red] Failed to download repository: {e}")
+            return []
+
+        if len(response.content) > MAX_DOWNLOAD_SIZE:
+            console.print(f"[red]Error:[/red] Repository archive exceeds {MAX_DOWNLOAD_SIZE // (1024 * 1024)} MB limit.")
             return []
 
         status.update("Extracting Markdown files...")
